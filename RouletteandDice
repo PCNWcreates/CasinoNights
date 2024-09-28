@@ -266,7 +266,6 @@ void checkWinCondition() {
   if (adjustedStopLED == 0) {
     adjustedStopLED = 1;  // Treat 0 as 1
   }
-
   // Combine the results of both dice, treating 0 as 1
   int combinedResult = (dice1Result == 0 ? 1 : dice1Result) + (dice2Result == 0 ? 1 : dice2Result);
 
