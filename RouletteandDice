@@ -205,7 +205,6 @@ void showDiceResult() {
   }
   diceStrip.show();
 }
-
 // Start Roulette spin
 void startRouletteSpin() {
   spinStartTime = millis();
