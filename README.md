@@ -13,7 +13,8 @@ Adafruit_NeoPixel diceStrip = Adafruit_NeoPixel(NUM_DICE_LEDS, DICE_PIN, NEO_RGB
 CRGB rouletteLeds[NUM_ROULETTE_LEDS];
 
 // Dice patterns for the 14 LEDs, split into two separate dice
-byte dicePatterns1[6][7] = {
+byte dicePatterns1[7][7] = {
+  {0, 0, 0, 0, 0, 0, 0}, // 0
   {0, 0, 0, 1, 0, 0, 0}, // 1
   {1, 0, 0, 0, 0, 0, 1}, // 2
   {1, 0, 0, 1, 0, 0, 1}, // 3
@@ -22,7 +23,8 @@ byte dicePatterns1[6][7] = {
   {1, 1, 1, 0, 1, 1, 1}  // 6
 };
 
-byte dicePatterns2[6][7] = {
+byte dicePatterns2[7][7] = {
+  {0, 0, 0, 0, 0, 0, 0}, // 0
   {0, 0, 0, 1, 0, 0, 0}, // 1
   {1, 0, 0, 0, 0, 0, 1}, // 2
   {1, 0, 0, 1, 0, 0, 1}, // 3
@@ -179,12 +181,14 @@ void rollDiceEffect() {
 
 // Show final dice result
 void showDiceResult() {
-  dice1Result = random(1, 7);  // Random number 1-6 for dice 1
-  dice2Result = random(1, 7);  // Random number 1-6 for dice 2
+  dice1Result = random(0, 7);  // Random number 0-6 for dice 1
+  do {
+    dice2Result = random(0, 7);  // Random number 0-6 for dice 2
+  } while (dice1Result == 0 && dice2Result == 0);  // Ensure both dice do not show 0 at the same time
 
   // Display dice 1 result (LEDs 1-7)
   for (int i = 0; i < 7; i++) {
-    if (dicePatterns1[dice1Result - 1][i] == 1) {
+    if (dicePatterns1[dice1Result][i] == 1) {
       diceStrip.setPixelColor(i, rainbowColors[i].r, rainbowColors[i].g, rainbowColors[i].b); // Rainbow color
     } else {
       diceStrip.setPixelColor(i, 0, 0, 0); // Turn off LED
@@ -193,7 +197,7 @@ void showDiceResult() {
 
   // Display dice 2 result (LEDs 8-14)
   for (int i = 0; i < 7; i++) {
-    if (dicePatterns2[dice2Result - 1][i] == 1) {
+    if (dicePatterns2[dice2Result][i] == 1) {
       diceStrip.setPixelColor(i + 7, rainbowColors[i].r, rainbowColors[i].g, rainbowColors[i].b); // Rainbow color
     } else {
       diceStrip.setPixelColor(i + 7, 0, 0, 0); // Turn off LED
@@ -258,13 +262,18 @@ void startSlowdown() {
 
 // Check win condition
 void checkWinCondition() {
-  // Combine the results of both dice
-  int combinedResult = dice1Result + dice2Result;
-
   // Adjust stopLED to match the numbering from 1-12
+  int adjustedStopLED = (stopLED + 1) % NUM_ROULETTE_LEDS;
+  if (adjustedStopLED == 0) {
+    adjustedStopLED = 1;  // Treat 0 as 1
+  }
+
+  // Combine the results of both dice, treating 0 as 1
+  int combinedResult = (dice1Result == 0 ? 1 : dice1Result) + (dice2Result == 0 ? 1 : dice2Result);
+
   if (spinCount % 50 == 0) {
     currentState = WIN_EFFECT; // Force a win every 50 spins
-  } else if ((stopLED + 1) % NUM_ROULETTE_LEDS == combinedResult) {
+  } else if (adjustedStopLED == combinedResult) {
     currentState = WIN_EFFECT;
   } else {
     showDiceRed();
