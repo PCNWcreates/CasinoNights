@@ -326,6 +326,16 @@ bool blinkStoppedLED() {
       return false;
     }
 
+    // Blink the stopped LED
+    rouletteLeds[stopLED] = (blinkCount % 2 == 0) ? CRGB(CHSV(random(255), 255, 255)) : CRGB::Black;
+    FastLED.show();
+  }
+
+  // Ensure dice LEDs remain fixed
+  showDiceResult();
+
+  return (currentButtonState == LOW); // Return true if interrupted by button press
+}
     rouletteLeds[stopLED] = (blinkCount % 2 == 0) ? CRGB(CHSV(random(255), 255, 255)) : CRGB::Black;
     FastLED.show();
   }
